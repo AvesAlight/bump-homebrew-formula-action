@@ -57,17 +57,16 @@ async function resolveRedirect(
       },
       (res) => {
         res.resume() // ensure the response body has been fully read
-        if (res.statusCode == 302) {
+        const status = res.statusCode
+        if (status && status >= 300 && status < 400) {
           const loc = res.headers['location']
           if (loc != null) {
             resolve(new URL(loc))
           } else {
-            reject(
-              new Error(`got HTTP ${res.statusCode} but no Location header`)
-            )
+            reject(new Error(`got HTTP ${status} but no Location header`))
           }
         } else {
-          reject(new Error(`unexpected HTTP ${res.statusCode} response`))
+          reject(new Error(`unexpected HTTP ${status} response`))
         }
       }
     )
